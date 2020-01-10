@@ -1,0 +1,27 @@
+{"process":[
+	{"meta":
+		{"name":"Proces 2",
+		"description":"XXProces 2. Lorem ipsum dolor sit.",
+		"merge_documents":false}
+	},
+	{"delevery":
+		{"delevery_type":"file",
+		"destination":"some\\path"}
+	},
+	{"sbsys":
+		{"KLe":"27.27.10",
+		"SkabelonID":1234}
+	},
+	{"documents":
+		[{"name":"Document 1", 
+		"mandatory":true,
+		"pages":2
+		},
+		{"name":"Bilag", 
+		"mandatory":false,
+		"pages":1
+		}]
+	}
+
+]
+}
