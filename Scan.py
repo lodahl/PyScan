@@ -9,8 +9,6 @@ import os, tkinter as tk, json
 from PIL import ImageTk, Image
 from time import sleep
 
-
-
 def cleanup_temp(path):
 	'''
 	Deletes all files in a folder.
@@ -120,6 +118,7 @@ def open_dialog(processes):
 	This function runs the dialog
 	'''
 	dialog = tk.Tk()
+	dialog.geometry("600x550")
 	dialog.title("Skan dokumenter")
 	
 	lb_process_var=tk.StringVar()
@@ -127,19 +126,20 @@ def open_dialog(processes):
 	lb_process_var.set("Vælg proces: ")
 	
 	tx_cpr_var=tk.StringVar()
-	tx_cpr=tk.Entry(textvariable=tx_cpr_var)
+	tx_cpr=tk.Entry(dialog, textvariable=tx_cpr_var)
 	img_previw_var=tk.StringVar()	
 
 	def ok(lb_process_var):
-		print ("value is:" + lb_process_var)
+		myProcess=sc_process(lb_process_var)
+		ms_process_var.set(myProcess.getProcess_name() + ": " + myProcess.getProcess_desc())
 
 	sl_process_var = tk.StringVar()
 	sl_process_var.set("-vælg-") # default value
 	sl_process = tk.OptionMenu(dialog, sl_process_var, *processes, command=ok)
 
 	ms_process_var=tk.StringVar()
-	ms_process = tk.Message(dialog, textvariable=ms_process_var, bg="white",  width=300) #height=30,
-	ms_process_var.set("Lorem ipsum dolor sit amed du og jeg går en lang tur.")
+	ms_process = tk.Message(dialog, textvariable=ms_process_var, bg="white",  width=350, anchor=tk.NW) #height=30,
+	ms_process_var.set('                        ')
 
 	lb_cpr_var=tk.StringVar()
 	lb_cpr_var.set("CPR: ")
@@ -147,14 +147,19 @@ def open_dialog(processes):
    
 	width = int(210*1.5)
 	height =int(297*1.5)
-	#print(os.getcwd()+os.path.sep+"Skærmbillede.png")
-	img = Image.open(os.getcwd()+os.path.sep+"dummy.png")
-	img = img.resize((width,height), Image.ANTIALIAS)
-	image =  ImageTk.PhotoImage(img)
-	  
-	img_preview = tk.Label(dialog, textvariable=img_previw_var, image=image)
-	#img_previw_var.set("Forhåndsvisning")
+	imgfile=os.getcwd()+os.path.sep+"dummy.png"
+	print(imgfile)
+	print(os.path.exists(imgfile))
 	
+	load = Image.open(imgfile)
+	load = load.resize((width,height), Image.ANTIALIAS)
+	render = ImageTk.PhotoImage(load)
+
+	#img = Image.open(imgfile)
+	#
+	#image =  ImageTk.PhotoImage(img)
+	lb_img_preview = tk.Label(dialog, image = render)  
+	lb_img_preview.image = render
 	lb_process_step_var=tk.StringVar()
 	lb_process_step=tk.Label(dialog, textvariable=lb_process_step_var)
 	lb_process_step_var.set("Scanner dokument 1 side 2")
@@ -191,7 +196,7 @@ def open_dialog(processes):
 	ms_process.grid(column=2, row=0, rowspan=2, sticky=tk.N+tk.S)
 	lb_cpr.grid(column=0, row=1)
 	tx_cpr.grid(column=1, row=1)
-	img_preview.grid(column=0, row=2, columnspan=2, rowspan=3, sticky=tk.W+tk.E)
+	lb_img_preview.grid(column=0, row=2, columnspan=2, rowspan=3, sticky=tk.W+tk.E)
 	lb_process_step.grid(column=2, row=2, sticky=tk.NW)
 	lb_comment.grid(column=2, row=3, sticky=tk.SW)
 	tx_comment.grid(column=2, row=4, sticky=tk.NW)
