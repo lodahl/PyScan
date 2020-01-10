@@ -1,2 +1,5 @@
 *.pyc
 /__pycache__
+test.py
+test2.py
+Test3.py
