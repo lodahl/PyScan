@@ -1,2 +1,0 @@
-Tilføj AllowComment til JSON-filer
-Tilføj AllowComment i koden

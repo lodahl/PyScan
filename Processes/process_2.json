@@ -2,7 +2,8 @@
 	{"meta":
 		{"name":"Proces 2",
 		"description":"XXProces 2. Lorem ipsum dolor sit.",
-		"merge_documents":false}
+		"merge_documents":false},
+		"AllowComment":true}
 	},
 	{"delevery":
 		{"delevery_type":"file",
