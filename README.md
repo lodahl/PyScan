@@ -12,7 +12,7 @@ A profile could look like this:
 	`{"meta":`
 		`{"name":"Proces 2",`
 		`"description":"XXProces 2. Lorem ipsum dolor sit.",`
-		`"merge_documents":false},`
+		`"merge_documents":false,`
 		`"AllowComment":true}`
 	`},`
 	`{"delevery":`
@@ -43,6 +43,12 @@ I have a long todo-list:
 
 - Rotate the live stream from camera (don't know if its possible)
 - Implement the flow (loop through documents and pages)
-- Generate one or more pdf files.
-- Rearrange and polish the window gui (its a mess)
+- ~~Rearrange and polish the window gui (its a mess)~~
+- Generate pdf files:
+  - Merged
+  - Separate
+- XML-files for SBSYS
+- Delivery
+  - As file
+  - By mail
 

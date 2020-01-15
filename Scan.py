@@ -1,5 +1,4 @@
 # https://solarianprogrammer.com/2018/04/21/python-opencv-show-video-tkinter-window/
-
 import PIL.Image, PIL.ImageTk, cv2, json, time, os
 import numpy as np
 import tkinter as tk
@@ -61,8 +60,8 @@ def get_processes(path=None):
 		if any(fn.endswith(ext) for ext in ['json'])]
 	processes=[]
 	for file in process_files:
-		process= file.split('.')[0]
-		processes.append(process)
+		this_process= file.split('.')[0]
+		processes.append(this_process)
 	os.chdir('..'+os.path.sep)
 
 	return processes
@@ -77,7 +76,7 @@ class sc_process:
 
 		self.process = process
 		self.path=path
-		
+
 		if self.path == None:
 			os.chdir('Processes')
 			filename=os.getcwd() + os.path.sep + self.process+'.json'
@@ -85,24 +84,25 @@ class sc_process:
 			filename=self.path + os.path.sep + self.process+'.json'
 		try:
 			with open(filename) as f:
-				process=json.loads(f.read())
+				processread=json.loads(f.read())
 		except:	
-			process=None
+			processread=None
 			print("Fejl. Filen findes ikke:" + filename)
 			
 		os.chdir('..'+os.path.sep)
 	
-		self.process_name=process['process'][0]['meta']['name']
-		self.process_description=process['process'][0]['meta']['description']
-		self.merge_documents=process['process'][0]['meta']['merge_documents']
-		self.AllowComment=process['process'][0]['meta']['AllowComment']
-		self.delevery_type=process['process'][1]['delevery']['delevery_type']
-		self.destination=process['process'][1]['delevery']['destination']
-		self.KLe=process['process'][2]['sbsys']['KLe']
-		self.SkabelonID=process['process'][2]['sbsys']['SkabelonID']
-		self.documents=process['process'][3]['documents']
+		self.process_name=processread['process'][0]['meta']['name']
+		self.process_description=processread['process'][0]['meta']['description']
+		self.merge_documents=processread['process'][0]['meta']['merge_documents']
+		self.AllowComment=processread['process'][0]['meta']['AllowComment']
+		self.delevery_type=processread['process'][1]['delevery']['delevery_type']
+		self.destination=processread['process'][1]['delevery']['destination']
+		self.KLe=processread['process'][2]['sbsys']['KLe']
+		self.SkabelonID=processread['process'][2]['sbsys']['SkabelonID']
+		self.documents=processread['process'][3]['documents']
 		
 	def getProcess_name(self):
+		print(type(self))
 		return self.process_name
 	
 	def getProcess_desc(self):
@@ -127,6 +127,7 @@ class sc_process:
 		return self.documents
 
 	def __str__(self):
+		print(type(self))
 		return "Process: " + self.process_name + " " + self.process_description
 
 class App:
@@ -135,7 +136,10 @@ class App:
 		self.window.title(window_title)
 		self.processes=processes
 		self.video_source = video_source
-		self.window.geometry("926x594")
+		self.window.geometry("945x560")
+		photo = tk.PhotoImage(file='scan.png')
+		self.canvas0=tk.Canvas(window, height=40, width=40)
+		self.canvas0.create_image(1, 0, image = photo, anchor = tk.NW)
 		
 		# open video source (by default this will try to open the computer webcam)
 		self.vid = MyVideoCapture(self.video_source)
@@ -146,11 +150,15 @@ class App:
 		self.lb_process_var.set("Vælg proces: ")
 		
 		def ok(sl_process_var):
-			print(type(self.sl_process_var))
+			if sl_process_var == '-vælg-':
+				self.tx_cpr.configure(state='disabled')
+			else:
+				self.tx_cpr.configure(state='normal')
+			
+			#self.tx_cpr_var=sc_process(self.sl_process_var.get())
 			myProcess=sc_process(self.sl_process_var.get())
-			print(myProcess)
-			print(myProcess.getProcess_name() + ": " + myProcess.getProcess_desc())
-			self.ms_process_var.set(myProcess.getProcess_name() + ": " + myProcess.getProcess_desc())
+			#sc_process(sl_process_var).getProcess_name()
+			self.ms_process_var.set(sc_process.getProcess_name(myProcess) + ": " + sc_process.getProcess_desc(myProcess))
 
 		#Create the selectbox for processes
 		self.sl_process_var = tk.StringVar()
@@ -165,7 +173,7 @@ class App:
 		
 		#Create the label for identification
 		self.tx_cpr_var=tk.StringVar()
-		self.tx_cpr=tk.Entry(window, textvariable=self.tx_cpr_var)
+		self.tx_cpr=tk.Entry(window, textvariable=self.tx_cpr_var, state='disabled')
 		self.img_previw_var=tk.StringVar()
 		
 		#Create the field for identification
@@ -187,14 +195,15 @@ class App:
 		self.lb_comment_var.set("Evt. bemærkning:")
 	
 		self.tx_comment_var=tk.StringVar()
-		self.tx_comment=tk.Text(window, height=4, width=30)
+		self.tx_comment=tk.Text(window, height=4, width=35)
 		
 		self.lb_status_var=tk.StringVar()
-		self.lb_status=tk.Label(window,textvariable=self.lb_status_var, bg="darkgrey")
+		self.frame = tk.Frame(window, bg="darkgrey")
+		self.lb_status=tk.Label(self.frame, textvariable=self.lb_status_var, bg="darkgrey", justify=tk.LEFT)
 		self.lb_status_var.set("Status:")
 
 		# Button that lets the user take a snapshot
-		self.btn_snapshot=tk.Button(window, text="Scan", command=self.snapshot)
+		self.btn_snapshot=tk.Button(window, text="Scan", command=self.snapshot, padx=5)
 		#--->	self.btn_snapshot.pack(anchor=tk.CENTER, expand=True)
 		
 		def skip():
@@ -205,25 +214,29 @@ class App:
 			print("Afbryd")
 			self.window.destroy()
 		
-		self.btn_skip=tk.Button(window,text="Skip", command=skip)
-		self.btn_cancel=tk.Button(window,text="Afbryd", command=cancel)
+		self.btn_skip=tk.Button(window,text="Skip", command=skip, padx=5)
+		self.btn_cancel=tk.Button(window,text="Afbryd", command=cancel, padx=5)
 		
-		self.lb_process.grid(column=0, row=0, sticky=tk.N)
-		self.sl_process.grid(column=1, row=0, sticky=tk.N)
-		self.ms_process.grid(column=2, row=0, rowspan=2, sticky=tk.N+tk.S)
-		self.lb_cpr.grid(column=0, row=1)
-		self.tx_cpr.grid(column=1, row=1)
-		self.canvas.grid(column=0, row=2, columnspan=2, rowspan=3, sticky=tk.W+tk.E)
-		self.lb_process_step.grid(column=2, row=2, sticky=tk.NW)
-		self.lb_comment.grid(column=2, row=3, sticky=tk.SW)
-		self.tx_comment.grid(column=2, row=4, sticky=tk.NW)
-		self.btn_snapshot.grid(column=2, row=5, sticky=tk.SW)
-		self.btn_skip.grid(column=2, row=5, sticky=tk.S)
-		self.btn_cancel.grid(column=2, row=5, sticky=tk.SE)
+		#-------------------------------------------
+		self.canvas0.grid(column=0, row=0, rowspan=2, sticky=tk.NW)
+		self.lb_process.grid(column=1, row=0, sticky=tk.NW)
+		self.sl_process.grid(column=2, row=0, sticky=tk.NW)
+		self.ms_process.grid(column=3, row=0, rowspan=2, columnspan=3, sticky=tk.NW+tk.NS)
+		self.lb_cpr.grid(column=1, row=1, sticky=tk.NW)
+		self.tx_cpr.grid(column=2, row=1, sticky=tk.NW)
+		self.canvas.grid(column=0, row=2, rowspan=4, columnspan=3)# sticky=tk.W+tk.E)
+		self.lb_process_step.grid(column=3, row=2, sticky=tk.NW)
+		self.lb_comment.grid(column=3, row=3, columnspan=3, sticky=tk.SW)
+		self.tx_comment.grid(column=3, row=4, columnspan=3, sticky=tk.NW)
+		
+		self.btn_snapshot.grid(column=3, row=5, sticky=tk.SE)
+		self.btn_skip.grid(column=4, row=5, sticky=tk.S)
+		self.btn_cancel.grid(column=5, row=5, sticky=tk.S)
+		self.frame.grid(column=0, columnspan=3, row=6, sticky=tk.EW)
 		self.lb_status.grid(column=0, columnspan=3, row=6, sticky=tk.W)
 
 		# After it is called once, the update method will be automatically called every delay milliseconds
-		self.delay = 30
+		self.delay = 300
 		self.update()
 
 		self.window.mainloop()
@@ -233,7 +246,6 @@ class App:
 		
 		# Get a frame from the video source
 		ret, frame = self.vid.get_frame()
-
 
 		if ret:
 			frame = rotate_bound(frame,90)
@@ -249,7 +261,6 @@ class App:
 
 		self.window.after(self.delay, self.update)
 
-
 class MyVideoCapture:
 	def __init__(self, video_source=0):
 		# Open the video source
@@ -263,6 +274,7 @@ class MyVideoCapture:
 		self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
 		self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
 		self.shape = (self.width, self.height)
+		print(self.shape)
 
 	def get_frame(self):
 		if self.vid.isOpened():
@@ -283,5 +295,12 @@ class MyVideoCapture:
 # Create a window and pass it to the Application object
 processes=get_processes()
 tmp_folder=os.getcwd() + os.path.sep +"tmp/"
-cleanup_temp(tmp_folder)		
+cleanup_temp(tmp_folder)
+#sc_process("process_1")
+#myProcess=sc_process("process_1")
+#sc_process("process_1").getdelevery_type()
+
+#print(sc_process.getProcess_name("process_1"))
+#print(sc_process.getProcess_name("process_1")	)
 App(tk.Tk(), "Scan dokumenter", processes)
+

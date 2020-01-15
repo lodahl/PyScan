@@ -1,6 +1,9 @@
 *.pyc
 /__pycache__
 /archive
+/tmp
 test.py
 test2.py
 Test3.py
+w_tkinter.py
+
