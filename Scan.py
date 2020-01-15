@@ -154,10 +154,8 @@ class App:
 				self.tx_cpr.configure(state='disabled')
 			else:
 				self.tx_cpr.configure(state='normal')
-			
-			#self.tx_cpr_var=sc_process(self.sl_process_var.get())
+
 			myProcess=sc_process(self.sl_process_var.get())
-			#sc_process(sl_process_var).getProcess_name()
 			self.ms_process_var.set(sc_process.getProcess_name(myProcess) + ": " + sc_process.getProcess_desc(myProcess))
 
 		#Create the selectbox for processes
@@ -168,7 +166,7 @@ class App:
 		#Create the information area as message
 		self.ms_process_var=tk.StringVar()
 		#TOTO: Change this later
-		self.ms_process = tk.Message(window, textvariable=self.ms_process_var, bg="white", width=350, anchor=tk.NW) 
+		self.ms_process = tk.Label(window, textvariable=self.ms_process_var, bg="white", width=350, anchor=tk.NW, wraplength=300, justify=tk.LEFT) 
 		self.ms_process_var.set('Vælg scanningsproces i listen til venstre.')
 		
 		#Create the label for identification
@@ -294,8 +292,8 @@ class MyVideoCapture:
 
 # Create a window and pass it to the Application object
 processes=get_processes()
-tmp_folder=os.getcwd() + os.path.sep +"tmp/"
-cleanup_temp(tmp_folder)
+#tmp_folder=os.getcwd() + os.path.sep +"tmp/"
+#cleanup_temp(tmp_folder)
 #sc_process("process_1")
 #myProcess=sc_process("process_1")
 #sc_process("process_1").getdelevery_type()
