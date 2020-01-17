@@ -102,7 +102,6 @@ class sc_process:
 		self.documents=processread['process'][3]['documents']
 		
 	def getProcess_name(self):
-		print(type(self))
 		return self.process_name
 	
 	def getProcess_desc(self):
@@ -110,6 +109,9 @@ class sc_process:
 	
 	def getProcess_merge_documents(self):
 		return self.merge_documents
+	
+	def getAllowComment(self):
+		return self.AllowComment
 	
 	def getdelevery_type(self):
 		return self.delevery_type
@@ -136,7 +138,7 @@ class App:
 		self.window.title(window_title)
 		self.processes=processes
 		self.video_source = video_source
-		self.window.geometry("945x560")
+		self.window.geometry("775x665") #width, height
 		photo = tk.PhotoImage(file='scan.png')
 		self.canvas0=tk.Canvas(window, height=40, width=40)
 		self.canvas0.create_image(1, 0, image = photo, anchor = tk.NW)
@@ -150,13 +152,19 @@ class App:
 		self.lb_process_var.set("Vælg proces: ")
 		
 		def ok(sl_process_var):
+			myProcess=sc_process(self.sl_process_var.get())
+			self.tx_comment_var.set("")
 			if sl_process_var == '-vælg-':
 				self.tx_cpr.configure(state='disabled')
 			else:
 				self.tx_cpr.configure(state='normal')
 
-			myProcess=sc_process(self.sl_process_var.get())
-			self.ms_process_var.set(sc_process.getProcess_name(myProcess) + ": " + sc_process.getProcess_desc(myProcess))
+			self.ms_process_var.set(sc_process.getProcess_name(myProcess) + ": \n" + sc_process.getProcess_desc(myProcess))
+			
+			if sc_process.getAllowComment(myProcess):
+				self.tx_comment.config(state='normal')
+			else:
+				self.tx_comment.config(state='disabled')
 
 		#Create the selectbox for processes
 		self.sl_process_var = tk.StringVar()
@@ -166,7 +174,7 @@ class App:
 		#Create the information area as message
 		self.ms_process_var=tk.StringVar()
 		#TOTO: Change this later
-		self.ms_process = tk.Label(window, textvariable=self.ms_process_var, bg="white", width=350, anchor=tk.NW, wraplength=300, justify=tk.LEFT) 
+		self.ms_process = tk.Label(window, textvariable=self.ms_process_var, bg="white", width=35, anchor=tk.NW, wraplength=270, justify=tk.LEFT) 
 		self.ms_process_var.set('Vælg scanningsproces i listen til venstre.')
 		
 		#Create the label for identification
@@ -184,7 +192,7 @@ class App:
 		#--->	self.canvas.pack()
 		
 		self.lb_process_step_var=tk.StringVar()
-		self.lb_process_step=tk.Label(window, textvariable=self.lb_process_step_var)
+		self.lb_process_step=tk.Label(window, textvariable=self.lb_process_step_var, bg="white", width=35, anchor=tk.NW)
 		#TODO: Must be changed later
 		self.lb_process_step_var.set("Scanner dokument 1 side 2")
 	
@@ -193,11 +201,11 @@ class App:
 		self.lb_comment_var.set("Evt. bemærkning:")
 	
 		self.tx_comment_var=tk.StringVar()
-		self.tx_comment=tk.Text(window, height=4, width=35)
+		self.tx_comment=tk.Text(window, height=4, width=35, state='disabled')
 		
 		self.lb_status_var=tk.StringVar()
 		self.frame = tk.Frame(window, bg="darkgrey")
-		self.lb_status=tk.Label(self.frame, textvariable=self.lb_status_var, bg="darkgrey", justify=tk.LEFT)
+		self.lb_status=tk.Label(window, textvariable=self.lb_status_var, bg="darkgrey", justify=tk.LEFT)
 		self.lb_status_var.set("Status:")
 
 		# Button that lets the user take a snapshot
@@ -212,26 +220,27 @@ class App:
 			print("Afbryd")
 			self.window.destroy()
 		
-		self.btn_skip=tk.Button(window,text="Skip", command=skip, padx=5)
-		self.btn_cancel=tk.Button(window,text="Afbryd", command=cancel, padx=5)
+		self.btn_skip=tk.Button(window, text="Skip", command=skip, padx=5)
+		self.btn_cancel=tk.Button(window, text="Afbryd", command=cancel, padx=5)
 		
 		#-------------------------------------------
-		self.canvas0.grid(column=0, row=0, rowspan=2, sticky=tk.NW)
-		self.lb_process.grid(column=1, row=0, sticky=tk.NW)
-		self.sl_process.grid(column=2, row=0, sticky=tk.NW)
-		self.ms_process.grid(column=3, row=0, rowspan=2, columnspan=3, sticky=tk.NW+tk.NS)
-		self.lb_cpr.grid(column=1, row=1, sticky=tk.NW)
-		self.tx_cpr.grid(column=2, row=1, sticky=tk.NW)
-		self.canvas.grid(column=0, row=2, rowspan=4, columnspan=3)# sticky=tk.W+tk.E)
-		self.lb_process_step.grid(column=3, row=2, sticky=tk.NW)
-		self.lb_comment.grid(column=3, row=3, columnspan=3, sticky=tk.SW)
-		self.tx_comment.grid(column=3, row=4, columnspan=3, sticky=tk.NW)
+		self.canvas0.grid(column=1, row=0, columnspan=3, sticky=tk.NW)
+		self.lb_process.grid(column=1, row=1, columnspan=3, sticky=tk.SW)
+		self.sl_process.grid(column=1, row=2, columnspan=3, sticky=tk.NW)
+		self.ms_process.grid(column=1, row=3, columnspan=3, sticky=tk.NW+tk.NS)
+		self.lb_cpr.grid(column=1, row=5, columnspan=3, sticky=tk.SW)
+		self.tx_cpr.grid(column=1, row=6, columnspan=3, sticky=tk.NW)
+		self.canvas.grid(column=0, row=0, rowspan=10, sticky=tk.W+tk.E)
+		self.lb_process_step.grid(column=1, row=4, columnspan=3, sticky=tk.NW+tk.NE)
 		
-		self.btn_snapshot.grid(column=3, row=5, sticky=tk.SE)
-		self.btn_skip.grid(column=4, row=5, sticky=tk.S)
-		self.btn_cancel.grid(column=5, row=5, sticky=tk.S)
-		self.frame.grid(column=0, columnspan=3, row=6, sticky=tk.EW)
-		self.lb_status.grid(column=0, columnspan=3, row=6, sticky=tk.W)
+		self.lb_comment.grid(column=1, row=7, columnspan=3, sticky=tk.SW)
+		self.tx_comment.grid(column=1, row=8, columnspan=3, sticky=tk.NW) #comment field
+		
+		self.btn_snapshot.grid(column=1, row=9, sticky=tk.SW)
+		self.btn_skip.grid(column=2, row=9, sticky=tk.S)
+		self.btn_cancel.grid(column=3, row=9, sticky=tk.SE)
+		#self.frame.grid(column=0, columnspan=3, row=6, sticky=tk.EW)
+		self.lb_status.grid(column=0, row=10, sticky=tk.NW)
 
 		# After it is called once, the update method will be automatically called every delay milliseconds
 		self.delay = 300
@@ -269,17 +278,19 @@ class MyVideoCapture:
 		# Get video source width and height
 		#self.vid.set(cv2.VideoCapture.CV_CAP_PROP_FRAME_WIDTH, 1280)
 		#self.vid.set(cv2.VideoCapture.CV_CAP_PROP_FRAME_HEIGHT, 720)
-		self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
-		self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
+		self.height = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
+		self.width = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
 		self.shape = (self.width, self.height)
-		print(self.shape)
+		#print(self.shape)
 
 	def get_frame(self):
 		if self.vid.isOpened():
 			ret, frame = self.vid.read()
 			if ret:
+				frame = rotate_bound(frame,90)
 				# Return a boolean success flag and the current frame converted to BGR
 				return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+				
 			else:
 				return (ret, None)
 		else:
@@ -291,7 +302,7 @@ class MyVideoCapture:
 			self.vid.release()
 
 # Create a window and pass it to the Application object
-processes=get_processes()
+
 #tmp_folder=os.getcwd() + os.path.sep +"tmp/"
 #cleanup_temp(tmp_folder)
 #sc_process("process_1")
@@ -300,5 +311,5 @@ processes=get_processes()
 
 #print(sc_process.getProcess_name("process_1"))
 #print(sc_process.getProcess_name("process_1")	)
-App(tk.Tk(), "Scan dokumenter", processes)
+App(tk.Tk(), "Scan dokumenter", get_processes())
 
