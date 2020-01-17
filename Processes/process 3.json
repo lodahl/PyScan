@@ -14,13 +14,13 @@
 		"SkabelonID":1234}
 	},
 	{"documents":
-		[{"name":"Document 1", 
+		[{"name":"Ansøgning", 
 		"mandatory":true,
 		"pages":2
 		},
 		{"name":"Bilag", 
 		"mandatory":false,
-		"pages":1
+		"pages":2
 		}]
 	}
 

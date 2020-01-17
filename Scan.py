@@ -165,7 +165,27 @@ class App:
 				self.tx_comment.config(state='normal')
 			else:
 				self.tx_comment.config(state='disabled')
-
+			i=0
+			for doc in sc_process.getdocuments(myProcess):
+				#This is main loop of docs and pages		
+				name=doc.get("name")
+				mandatory=doc.get("mandatory")
+				pages=doc.get("pages")
+				
+				if mandatory==True:
+					self.btn_skip.configure(state='disabled')
+				else:
+					self.btn_skip.configure(state='normal')
+				
+				for p in range(1, pages+1):
+					self.lb_process_step_var.set("Scanner " + name + " side " + str(p))
+					self.btn_snapshot.bind('<Button-1>', lambda e: self.snapshot(f"{i+1:02}" + name, f"{p:02}"))
+					self.btn_snapshot.wait_variable(self.btn_snapshot_clicked)
+				i+=1	
+				
+				
+			self.lb_process_step_var.set("Slut")
+			self.btn_snapshot.config(state='disabled')
 		#Create the selectbox for processes
 		self.sl_process_var = tk.StringVar()
 		self.sl_process_var.set("-vælg-") # default value
@@ -194,7 +214,7 @@ class App:
 		self.lb_process_step_var=tk.StringVar()
 		self.lb_process_step=tk.Label(window, textvariable=self.lb_process_step_var, bg="white", width=35, anchor=tk.NW)
 		#TODO: Must be changed later
-		self.lb_process_step_var.set("Scanner dokument 1 side 2")
+		self.lb_process_step_var.set("")
 	
 		self.lb_comment_var=tk.StringVar()
 		self.lb_comment=tk.Label(window, textvariable=self.lb_comment_var)
@@ -209,7 +229,9 @@ class App:
 		self.lb_status_var.set("Status:")
 
 		# Button that lets the user take a snapshot
-		self.btn_snapshot=tk.Button(window, text="Scan", command=self.snapshot, padx=5)
+		self.btn_snapshot_clicked=tk.BooleanVar()
+		self.btn_snapshot_clicked.set(False)
+		self.btn_snapshot=tk.Button(window, text="Scan",  padx=5) #command=self.snapshot,
 		#--->	self.btn_snapshot.pack(anchor=tk.CENTER, expand=True)
 		
 		def skip():
@@ -248,7 +270,8 @@ class App:
 
 		self.window.mainloop()
 
-	def snapshot(self):
+	def snapshot(self, document, page):
+		self.btn_snapshot_clicked.set(True)
 		self.lb_status_var.set("Status: Scanner...")
 		
 		# Get a frame from the video source
@@ -256,7 +279,7 @@ class App:
 
 		if ret:
 			frame = rotate_bound(frame,90)
-			cv2.imwrite("tmp/frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".png", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+			cv2.imwrite("tmp/" + document +"_" + str(page) + ".png", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
 	def update(self):
 		# Get a frame from the video source
@@ -302,9 +325,8 @@ class MyVideoCapture:
 			self.vid.release()
 
 # Create a window and pass it to the Application object
-
-#tmp_folder=os.getcwd() + os.path.sep +"tmp/"
-#cleanup_temp(tmp_folder)
+tmp_folder=os.getcwd() + os.path.sep +"tmp/"
+cleanup_temp(tmp_folder)
 #sc_process("process_1")
 #myProcess=sc_process("process_1")
 #sc_process("process_1").getdelevery_type()
