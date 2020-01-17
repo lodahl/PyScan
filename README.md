@@ -37,11 +37,17 @@ A profile could look like this:
 `]`
 `}`
 
+# Screen
+
+![Window](Window.png)
+
+
+
 ## Todo
 
 I have a long todo-list:
 
-- Rotate the live stream from camera (don't know if its possible)
+- ~~Rotate the live stream from camera (don't know if its possible)~~
 - Implement the flow (loop through documents and pages)
 - ~~Rearrange and polish the window gui (its a mess)~~
 - Generate pdf files:
