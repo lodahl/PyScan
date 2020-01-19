@@ -1,7 +1,33 @@
 # https://solarianprogrammer.com/2018/04/21/python-opencv-show-video-tkinter-window/
-import PIL.Image, PIL.ImageTk, cv2, json, time, os
+import PIL.Image, PIL.ImageTk, cv2, json, os
+from PyPDF2 import PdfFileMerger
 import numpy as np
 import tkinter as tk
+
+tmp_folder=os.getcwd() + os.path.sep +"tmp/"
+
+def img2pdf(fname):
+	filename = fname
+	name = filename.split('.')[0]
+	im = PIL.Image.open(tmp_folder+filename)
+
+	newfilename = ''.join([tmp_folder,name,'.pdf'])
+	PIL.Image.Image.save(im, newfilename, "PDF", resolution = 100.0)
+	os.remove(tmp_folder+filename)
+	
+def combinepdf(infiles, outfile):
+	file_dict = {}
+	for file in infiles:
+		if file.endswith((".pdf", ".PDF")):
+			filepath = tmp_folder + file
+			file_dict[file] = filepath
+			
+	merger = PdfFileMerger(strict=False)
+
+	for k, v in file_dict.items():
+		merger.append(v)
+
+	merger.write(tmp_folder+outfile)	
 
 def rotate_bound(image, angle):
 	# grab the dimensions of the image and then determine the
@@ -87,10 +113,9 @@ class sc_process:
 				processread=json.loads(f.read())
 		except:	
 			processread=None
-			print("Fejl. Filen findes ikke:" + filename)
+			print('Fejl. Filen ' + filename + ' er ikke en korrekt profil.json')
 			
 		os.chdir('..'+os.path.sep)
-	
 		self.process_name=processread['process'][0]['meta']['name']
 		self.process_description=processread['process'][0]['meta']['description']
 		self.merge_documents=processread['process'][0]['meta']['merge_documents']
@@ -183,7 +208,6 @@ class App:
 					self.btn_snapshot.wait_variable(self.btn_snapshot_clicked)
 				i+=1	
 				
-				
 			self.lb_process_step_var.set("Slut")
 			self.btn_snapshot.config(state='disabled')
 		#Create the selectbox for processes
@@ -239,11 +263,34 @@ class App:
 			#TODO: Must be done later
 			
 		def cancel():
-			print("Afbryd")
+			myProcess=sc_process(self.sl_process_var.get())
+			#print("Afslut")
 			self.window.destroy()
+			files = [f for f in os.listdir(tmp_folder) if f.endswith('.png')]
+			for fname in files:
+				img2pdf(fname)
+				
+			merge_documents=sc_process.getProcess_merge_documents(myProcess)
+			if merge_documents == True:
+				files = [f for f in os.listdir(tmp_folder) if f.endswith(('.pdf', '.PDF'))]
+				files.sort()
+				docnames=set()
+				for file in files:
+					docnames.add(file.split('_')[0])
+					for doc in docnames:
+						#print('doc:' + doc)
+						docfiles = [f for f in files if f.startswith((doc))]
+						combinepdf(docfiles, doc+".pdf")
+				for file in files:
+					if os.path.exists(tmp_folder+file) and os.path.isfile(tmp_folder+file):
+						os.remove(tmp_folder+file)
+					else:
+						print("The file " + tmp_folder+file + " does not exist") 		
+			else:
+				pass
 		
 		self.btn_skip=tk.Button(window, text="Skip", command=skip, padx=5)
-		self.btn_cancel=tk.Button(window, text="Afbryd", command=cancel, padx=5)
+		self.btn_cancel=tk.Button(window, text="Afslut", command=cancel, padx=5)
 		
 		#-------------------------------------------
 		self.canvas0.grid(column=1, row=0, columnspan=3, sticky=tk.NW)
@@ -313,7 +360,6 @@ class MyVideoCapture:
 				frame = rotate_bound(frame,90)
 				# Return a boolean success flag and the current frame converted to BGR
 				return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-				
 			else:
 				return (ret, None)
 		else:
@@ -324,14 +370,5 @@ class MyVideoCapture:
 		if self.vid.isOpened():
 			self.vid.release()
 
-# Create a window and pass it to the Application object
-tmp_folder=os.getcwd() + os.path.sep +"tmp/"
 cleanup_temp(tmp_folder)
-#sc_process("process_1")
-#myProcess=sc_process("process_1")
-#sc_process("process_1").getdelevery_type()
-
-#print(sc_process.getProcess_name("process_1"))
-#print(sc_process.getProcess_name("process_1")	)
 App(tk.Tk(), "Scan dokumenter", get_processes())
-

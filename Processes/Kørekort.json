@@ -1,7 +1,7 @@
 {"process":[
 	{"meta":
-		{"name":"Proces 3",
-		"description":"Proces 3. Lorem ipsum dolor sit. Lorem ipsum dolor sit. Lorem ipsum dolor sit.",
+		{"name":"Kørekort",
+		"description":"Kørekort består af tre sider: To sider ansøgning og et bilag.\n merge_documents:false",
 		"merge_documents":false,
 		"AllowComment":true}
 	},
@@ -16,7 +16,7 @@
 	{"documents":
 		[{"name":"Ansøgning", 
 		"mandatory":true,
-		"pages":2
+		"pages":4
 		},
 		{"name":"Bilag", 
 		"mandatory":false,

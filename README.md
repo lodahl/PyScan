@@ -47,12 +47,15 @@ A profile could look like this:
 
 I have a long todo-list:
 
+- The 'Skip' routine is still to be done
+- Somhow the Scan button is still active after it has been disabled.
+
 - ~~Rotate the live stream from camera (don't know if its possible)~~
-- Implement the flow (loop through documents and pages)
+- ~~Implement the flow (loop through documents and pages)~~
 - ~~Rearrange and polish the window gui (its a mess)~~
-- Generate pdf files:
-  - Merged
-  - Separate
+- ~~Generate pdf files:~~
+  - ~~Merged~~
+  - ~~Separate~~
 - XML-files for SBSYS
 - Delivery
   - As file

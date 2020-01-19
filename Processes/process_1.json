@@ -2,7 +2,7 @@
 	{"meta":
 		{"name":"Proces 1",
 		"description":"Proces 1. Lorem ipsum dolor sit.",
-		"merge_documents":false,
+		"merge_documents":true,
 		"AllowComment":true}
 	},
 	{"delevery":
