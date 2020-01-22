@@ -6,6 +6,17 @@ import tkinter as tk
 
 tmp_folder=os.getcwd() + os.path.sep +"tmp/"
 
+def guess_video():
+	videos=[]
+	for candidate in list(range(5)):
+		video_source=candidate
+		vid = cv2.VideoCapture(video_source)
+		if not vid.isOpened():
+			pass
+		else:
+			videos.append(candidate)
+	return videos[-1], videos
+
 def img2pdf(fname):
 	filename = fname
 	name = filename.split('.')[0]
@@ -158,7 +169,7 @@ class sc_process:
 		return "Process: " + self.process_name + " " + self.process_description
 
 class App:
-	def __init__(self, window, window_title, processes, video_source=0):
+	def __init__(self, window, window_title, processes, video_source=guess_video()[0]):
 		self.window = window
 		self.window.title(window_title)
 		self.processes=processes
@@ -166,10 +177,36 @@ class App:
 		self.window.geometry("775x665") #width, height
 		photo = tk.PhotoImage(file='scan.png')
 		self.canvas0=tk.Canvas(window, height=40, width=40)
+		self.labelCam=tk.Label(window, text='Kamera: ')
+
+		#Get the camera(s)
+		guess=guess_video()[0]
+		myCam=guess
+	
+		def selectCam():
+			myCam=var.get()
+			print("select" + str(myCam))
+			self.video_source=myCam
+
+		frame=tk.Frame(window)
+		frame.grid(column=3, row=0, sticky=tk.NW)
+		
+		var=tk.IntVar()
+		var.set(guess)
+		for video in guess_video()[1]:
+			#print(video)
+			#VideoStr='V'+str(video)
+			tk.Radiobutton(frame, 
+						  text='Kamera '+ str(video),
+						  variable=var, 
+						  value=video,
+						  command=selectCam).grid()# command=sel)
+		#tk.Radiobutton.config(self, var=guess)
+		
 		self.canvas0.create_image(1, 0, image = photo, anchor = tk.NW)
 		
 		# open video source (by default this will try to open the computer webcam)
-		self.vid = MyVideoCapture(self.video_source)
+		self.vid = MyVideoCapture(myCam)#self.video_source)
 		#self.vid= rotate_bound(self.vid,90)		
 		#Create the first label
 		self.lb_process_var=tk.StringVar()
@@ -293,7 +330,9 @@ class App:
 		self.btn_cancel=tk.Button(window, text="Afslut", command=cancel, padx=5)
 		
 		#-------------------------------------------
-		self.canvas0.grid(column=1, row=0, columnspan=3, sticky=tk.NW)
+		self.canvas0.grid(column=1, row=0,  sticky=tk.NW)
+		self.labelCam.grid(column=2, row=0, sticky=tk.NW)
+
 		self.lb_process.grid(column=1, row=1, columnspan=3, sticky=tk.SW)
 		self.sl_process.grid(column=1, row=2, columnspan=3, sticky=tk.NW)
 		self.ms_process.grid(column=1, row=3, columnspan=3, sticky=tk.NW+tk.NS)
@@ -325,7 +364,7 @@ class App:
 		ret, frame = self.vid.get_frame()
 
 		if ret:
-			frame = rotate_bound(frame,90)
+			#frame = rotate_bound(frame,90)
 			cv2.imwrite("tmp/" + document +"_" + str(page) + ".png", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
 	def update(self):
@@ -339,8 +378,9 @@ class App:
 		self.window.after(self.delay, self.update)
 
 class MyVideoCapture:
-	def __init__(self, video_source=0):
+	def __init__(self, video_source=guess_video):
 		# Open the video source
+		print(video_source)
 		self.vid = cv2.VideoCapture(video_source)
 		if not self.vid.isOpened():
 			raise ValueError("Unable to open video source", video_source)
@@ -370,5 +410,6 @@ class MyVideoCapture:
 		if self.vid.isOpened():
 			self.vid.release()
 
-cleanup_temp(tmp_folder)
+#print(guess_video()[1])
+#cleanup_temp(tmp_folder)
 App(tk.Tk(), "Scan dokumenter", get_processes())

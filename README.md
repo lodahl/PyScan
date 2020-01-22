@@ -48,8 +48,10 @@ A profile could look like this:
 I have a long todo-list:
 
 - The 'Skip' routine is still to be done
-- Somhow the Scan button is still active after it has been disabled.
-
+- Some how the Scan button is still active after it has been disabled.
+- ~~Select camera (if several)~~
+- Get data from identifier field and comments
+- Update status
 - ~~Rotate the live stream from camera (don't know if its possible)~~
 - ~~Implement the flow (loop through documents and pages)~~
 - ~~Rearrange and polish the window gui (its a mess)~~
